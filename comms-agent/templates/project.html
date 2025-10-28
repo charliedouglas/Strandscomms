@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ project.name }} - Project Details</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <header>
+        <h1>AI Team Communications Agent</h1>
+        <nav>
+            <a href="{{ url_for('index') }}">Dashboard</a>
+            <a href="{{ url_for('due_communications') }}">Due Communications</a>
+            <a href="{{ url_for('create_project') }}">+ New Project</a>
+        </nav>
+    </header>
+
+    <main>
+        <section class="project-detail">
+            <div class="project-header">
+                <h2>{{ project.name }}</h2>
+                <span class="status-badge status-{{ project.status }}">{{ project.status }}</span>
+            </div>
+
+            <div class="project-section">
+                <h3>Project Information</h3>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <label>Owner:</label>
+                        <span>{{ project.owner }}</span>
+                    </div>
+                    <div class="info-item">
+                        <label>Status:</label>
+                        <span>{{ project.status }}</span>
+                    </div>
+                    <div class="info-item">
+                        <label>Current Phase:</label>
+                        <span>{{ project.current_phase }}</span>
+                    </div>
+                    <div class="info-item">
+                        <label>Start Date:</label>
+                        <span>{{ project.start_date }}</span>
+                    </div>
+                    <div class="info-item">
+                        <label>Expected Launch:</label>
+                        <span>{{ project.expected_launch }}</span>
+                    </div>
+                </div>
+
+                <div class="info-item full-width">
+                    <label>Description:</label>
+                    <p>{{ project.description }}</p>
+                </div>
+
+                <div class="info-item full-width">
+                    <label>Business Value:</label>
+                    <p>{{ project.business_value }}</p>
+                </div>
+
+                <button onclick="toggleEdit()" class="btn btn-secondary">Edit Project</button>
+            </div>
+
+            <div id="editForm" class="edit-form" style="display: none;">
+                <h3>Edit Project</h3>
+                <form method="POST" action="{{ url_for('edit_project', project_id=project.id) }}">
+                    <div class="form-group">
+                        <label>Name:</label>
+                        <input type="text" name="name" value="{{ project.name }}" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Owner:</label>
+                        <input type="text" name="owner" value="{{ project.owner }}" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Status:</label>
+                        <select name="status">
+                            <option value="planning" {% if project.status == 'planning' %}selected{% endif %}>Planning</option>
+                            <option value="active" {% if project.status == 'active' %}selected{% endif %}>Active</option>
+                            <option value="launched" {% if project.status == 'launched' %}selected{% endif %}>Launched</option>
+                            <option value="paused" {% if project.status == 'paused' %}selected{% endif %}>Paused</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Current Phase:</label>
+                        <input type="text" name="current_phase" value="{{ project.current_phase }}">
+                    </div>
+                    <div class="form-group">
+                        <label>Expected Launch:</label>
+                        <input type="date" name="expected_launch" value="{{ project.expected_launch }}">
+                    </div>
+                    <div class="form-group">
+                        <label>Description:</label>
+                        <textarea name="description" rows="3">{{ project.description }}</textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Business Value:</label>
+                        <textarea name="business_value" rows="2">{{ project.business_value }}</textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>User Stakeholders (comma-separated emails):</label>
+                        <input type="text" name="users" value="{{ project.stakeholders.users|join(', ') }}">
+                    </div>
+                    <div class="form-group">
+                        <label>Developer Stakeholders (comma-separated emails):</label>
+                        <input type="text" name="developers" value="{{ project.stakeholders.developers|join(', ') }}">
+                    </div>
+                    <div class="form-group">
+                        <label>Management Stakeholders (comma-separated emails):</label>
+                        <input type="text" name="management" value="{{ project.stakeholders.management|join(', ') }}">
+                    </div>
+                    <div class="form-group">
+                        <label>Recent Updates (one per line):</label>
+                        <textarea name="recent_updates" rows="4">{{ project.recent_updates|join('\n') }}</textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Upcoming Milestones (format: YYYY-MM-DD: Description):</label>
+                        <textarea name="milestones" rows="4">{% for m in project.upcoming_milestones %}{{ m.date }}: {{ m.description }}
+{% endfor %}</textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                    <button type="button" onclick="toggleEdit()" class="btn btn-secondary">Cancel</button>
+                </form>
+            </div>
+
+            <div class="project-section">
+                <h3>Stakeholders</h3>
+                <div class="stakeholders-grid">
+                    <div class="stakeholder-group">
+                        <h4>Users</h4>
+                        <ul>
+                            {% for email in project.stakeholders.users %}
+                            <li>{{ email }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    <div class="stakeholder-group">
+                        <h4>Developers</h4>
+                        <ul>
+                            {% for email in project.stakeholders.developers %}
+                            <li>{{ email }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    <div class="stakeholder-group">
+                        <h4>Management</h4>
+                        <ul>
+                            {% for email in project.stakeholders.management %}
+                            <li>{{ email }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="project-section">
+                <h3>Recent Updates</h3>
+                <ul class="updates-list">
+                    {% for update in project.recent_updates %}
+                    <li>{{ update }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+            <div class="project-section">
+                <h3>Upcoming Milestones</h3>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for milestone in project.upcoming_milestones %}
+                        <tr>
+                            <td>{{ milestone.date }}</td>
+                            <td>{{ milestone.description }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="project-section">
+                <div class="section-header">
+                    <h3>Communications Plan</h3>
+                    <div>
+                        <a href="{{ url_for('view_plan', project_id=project.id) }}" class="btn btn-secondary">View Full Plan</a>
+                        <button onclick="generatePlan()" class="btn btn-primary">Generate/Regenerate Plan</button>
+                    </div>
+                </div>
+                {% if project.comms_plan.planned_communications %}
+                    <p><small>Generated: {{ project.comms_plan.generated_date }} | Horizon: {{ project.comms_plan.planning_horizon }}</small></p>
+                    <p>{{ project.comms_plan.planned_communications|length }} communications planned</p>
+                {% else %}
+                    <p>No communications plan generated yet.</p>
+                {% endif %}
+            </div>
+
+            <div class="project-section">
+                <h3>Communications History</h3>
+                {% if project.comms_history %}
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Type</th>
+                            <th>Audience</th>
+                            <th>Subject</th>
+                            <th>Summary</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for comm in project.comms_history|reverse %}
+                        <tr>
+                            <td>{{ comm.date_sent }}</td>
+                            <td>{{ comm.type }}</td>
+                            <td>{{ comm.audience }}</td>
+                            <td>{{ comm.subject }}</td>
+                            <td>{{ comm.summary[:100] }}...</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <p>No communications sent yet.</p>
+                {% endif %}
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>AI Team Communications Agent - Powered by AWS Strands SDK</p>
+    </footer>
+
+    <script>
+        function toggleEdit() {
+            const form = document.getElementById('editForm');
+            form.style.display = form.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function generatePlan() {
+            if (!confirm('Generate a new communications plan? This will analyze the project and create a 3-month plan.')) {
+                return;
+            }
+
+            const btn = event.target;
+            btn.disabled = true;
+            btn.textContent = 'Generating...';
+
+            fetch('{{ url_for("generate_plan", project_id=project.id) }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Communications plan generated successfully!');
+                    window.location.reload();
+                } else {
+                    alert('Error: ' + (data.error || 'Unknown error'));
+                    btn.disabled = false;
+                    btn.textContent = 'Generate/Regenerate Plan';
+                }
+            })
+            .catch(error => {
+                alert('Error generating plan: ' + error);
+                btn.disabled = false;
+                btn.textContent = 'Generate/Regenerate Plan';
+            });
+        }
+    </script>
+</body>
+</html>
