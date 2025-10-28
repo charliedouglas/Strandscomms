@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ project.name }} - Communications Plan</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <header>
+        <h1>AI Team Communications Agent</h1>
+        <nav>
+            <a href="{{ url_for('index') }}">Dashboard</a>
+            <a href="{{ url_for('due_communications') }}">Due Communications</a>
+            <a href="{{ url_for('create_project') }}">+ New Project</a>
+        </nav>
+    </header>
+
+    <main>
+        <section class="comms-plan">
+            <div class="plan-header">
+                <div>
+                    <h2>Communications Plan: {{ project.name }}</h2>
+                    <p><a href="{{ url_for('project_detail', project_id=project.id) }}">&larr; Back to Project</a></p>
+                </div>
+                <button onclick="generatePlan()" class="btn btn-primary">Regenerate Plan</button>
+            </div>
+
+            {% if project.comms_plan.planned_communications %}
+                <div class="plan-info">
+                    <p><strong>Generated:</strong> {{ project.comms_plan.generated_date }}</p>
+                    <p><strong>Planning Horizon:</strong> {{ project.comms_plan.planning_horizon }}</p>
+                    <p><strong>Total Communications:</strong> {{ project.comms_plan.planned_communications|length }}</p>
+                </div>
+
+                <div class="plan-timeline">
+                    {% for comm in project.comms_plan.planned_communications %}
+                    <div class="plan-item status-{{ comm.status }}">
+                        <div class="plan-item-header">
+                            <div>
+                                <h3>{{ comm.target_date }}</h3>
+                                <span class="type-badge">{{ comm.type }}</span>
+                                <span class="status-badge">{{ comm.status }}</span>
+                            </div>
+                        </div>
+
+                        <div class="plan-item-body">
+                            <div class="plan-detail">
+                                <strong>Audiences:</strong>
+                                <div class="audience-tags">
+                                    {% for audience in comm.audiences %}
+                                    <span class="audience-tag">{{ audience }}</span>
+                                    {% endfor %}
+                                </div>
+                            </div>
+
+                            <div class="plan-detail">
+                                <strong>Reason:</strong>
+                                <p>{{ comm.reason }}</p>
+                            </div>
+
+                            <div class="plan-detail">
+                                <strong>Key Topics:</strong>
+                                <ul>
+                                    {% for topic in comm.key_topics %}
+                                    <li>{{ topic }}</li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+
+                            {% if comm.status == 'pending' %}
+                            <div class="plan-actions">
+                                <button onclick="generateDraft('{{ project.id }}', {{ comm|tojson|safe }})" class="btn btn-primary">Generate Draft</button>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="empty-state">
+                    <p>No communications plan generated yet.</p>
+                    <button onclick="generatePlan()" class="btn btn-primary">Generate Plan Now</button>
+                </div>
+            {% endif %}
+        </section>
+    </main>
+
+    <footer>
+        <p>AI Team Communications Agent - Powered by AWS Strands SDK</p>
+    </footer>
+
+    <script>
+        function generatePlan() {
+            if (!confirm('Generate a new communications plan? This will analyze the project and create a 3-month plan.')) {
+                return;
+            }
+
+            const btn = event.target;
+            const originalText = btn.textContent;
+            btn.disabled = true;
+            btn.textContent = 'Generating...';
+
+            fetch('{{ url_for("generate_plan", project_id=project.id) }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Communications plan generated successfully!');
+                    window.location.reload();
+                } else {
+                    alert('Error: ' + (data.error || 'Unknown error'));
+                    btn.disabled = false;
+                    btn.textContent = originalText;
+                }
+            })
+            .catch(error => {
+                alert('Error generating plan: ' + error);
+                btn.disabled = false;
+                btn.textContent = originalText;
+            });
+        }
+
+        function generateDraft(projectId, plannedComm) {
+            if (!confirm('Generate email drafts for this communication?')) {
+                return;
+            }
+
+            const btn = event.target;
+            const originalText = btn.textContent;
+            btn.disabled = true;
+            btn.textContent = 'Generating...';
+
+            fetch('{{ url_for("generate_drafts") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    communications: [{
+                        project_id: projectId,
+                        planned_comm: plannedComm
+                    }]
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Store drafts in session storage and redirect to review
+                    sessionStorage.setItem('drafts', JSON.stringify(data.drafts));
+                    window.location.href = '/review-drafts?project_id=' + projectId;
+                } else {
+                    alert('Error: ' + (data.error || 'Unknown error'));
+                    btn.disabled = false;
+                    btn.textContent = originalText;
+                }
+            })
+            .catch(error => {
+                alert('Error generating drafts: ' + error);
+                btn.disabled = false;
+                btn.textContent = originalText;
+            });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Team Communications Agent - Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <header>
+        <h1>AI Team Communications Agent</h1>
+        <nav>
+            <a href="{{ url_for('index') }}">Dashboard</a>
+            <a href="{{ url_for('due_communications') }}">Due Communications</a>
+            <a href="{{ url_for('create_project') }}">+ New Project</a>
+        </nav>
+    </header>
+
+    <main>
+        <section class="dashboard">
+            <h2>Projects Overview</h2>
+
+            {% if projects %}
+                <div class="projects-grid">
+                    {% for project in projects %}
+                    <div class="project-card status-{{ project.status }}">
+                        <div class="project-header">
+                            <h3>{{ project.name }}</h3>
+                            <span class="status-badge">{{ project.status }}</span>
+                        </div>
+
+                        <div class="project-info">
+                            <p><strong>Owner:</strong> {{ project.owner }}</p>
+                            <p><strong>Phase:</strong> {{ project.current_phase }}</p>
+                            <p><strong>Launch:</strong> {{ project.expected_launch }}</p>
+                            <p><strong>Last Communication:</strong> {{ project.last_comm_date }}</p>
+                        </div>
+
+                        <div class="project-actions">
+                            <a href="{{ url_for('project_detail', project_id=project.id) }}" class="btn btn-primary">View Details</a>
+                            <a href="{{ url_for('view_plan', project_id=project.id) }}" class="btn btn-secondary">Comms Plan</a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="empty-state">
+                    <p>No projects yet. Create your first project to get started!</p>
+                    <a href="{{ url_for('create_project') }}" class="btn btn-primary">Create Project</a>
+                </div>
+            {% endif %}
+        </section>
+
+        <section class="quick-stats">
+            <h3>Quick Stats</h3>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value">{{ projects|length }}</div>
+                    <div class="stat-label">Total Projects</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">{{ projects|selectattr('status', 'equalto', 'active')|list|length }}</div>
+                    <div class="stat-label">Active Projects</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">{{ projects|selectattr('status', 'equalto', 'planning')|list|length }}</div>
+                    <div class="stat-label">In Planning</div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>AI Team Communications Agent - Powered by AWS Strands SDK</p>
+    </footer>
+</body>
+</html>

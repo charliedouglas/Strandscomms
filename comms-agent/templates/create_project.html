@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create New Project</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <header>
+        <h1>AI Team Communications Agent</h1>
+        <nav>
+            <a href="{{ url_for('index') }}">Dashboard</a>
+            <a href="{{ url_for('due_communications') }}">Due Communications</a>
+            <a href="{{ url_for('create_project') }}">+ New Project</a>
+        </nav>
+    </header>
+
+    <main>
+        <section class="create-project">
+            <h2>Create New Project</h2>
+
+            <form method="POST" action="{{ url_for('create_project') }}" class="project-form">
+                <div class="form-group">
+                    <label for="name">Project Name *</label>
+                    <input type="text" id="name" name="name" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="owner">Project Owner *</label>
+                    <input type="text" id="owner" name="owner" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="status">Status *</label>
+                    <select id="status" name="status" required>
+                        <option value="planning" selected>Planning</option>
+                        <option value="active">Active</option>
+                        <option value="launched">Launched</option>
+                        <option value="paused">Paused</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="current_phase">Current Phase</label>
+                    <input type="text" id="current_phase" name="current_phase"
+                           placeholder="e.g., Architecture & Design">
+                </div>
+
+                <div class="form-group">
+                    <label for="start_date">Start Date</label>
+                    <input type="date" id="start_date" name="start_date">
+                </div>
+
+                <div class="form-group">
+                    <label for="expected_launch">Expected Launch Date</label>
+                    <input type="date" id="expected_launch" name="expected_launch">
+                </div>
+
+                <div class="form-group">
+                    <label for="description">Description *</label>
+                    <textarea id="description" name="description" rows="3" required
+                              placeholder="Brief description of the project"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="business_value">Business Value *</label>
+                    <textarea id="business_value" name="business_value" rows="2" required
+                              placeholder="What business value does this project deliver?"></textarea>
+                </div>
+
+                <div class="form-section">
+                    <h3>Stakeholders</h3>
+
+                    <div class="form-group">
+                        <label for="users">User Stakeholders (comma-separated emails)</label>
+                        <input type="text" id="users" name="users"
+                               placeholder="users@company.com, customers@company.com">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="developers">Developer Stakeholders (comma-separated emails)</label>
+                        <input type="text" id="developers" name="developers"
+                               placeholder="dev-team@company.com, engineering@company.com">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="management">Management Stakeholders (comma-separated emails)</label>
+                        <input type="text" id="management" name="management"
+                               placeholder="cto@company.com, ceo@company.com">
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3>Project Details</h3>
+
+                    <div class="form-group">
+                        <label for="recent_updates">Recent Updates (one per line)</label>
+                        <textarea id="recent_updates" name="recent_updates" rows="4"
+                                  placeholder="List recent project updates, one per line"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="milestones">Upcoming Milestones</label>
+                        <textarea id="milestones" name="milestones" rows="4"
+                                  placeholder="Format: YYYY-MM-DD: Milestone description (one per line)"></textarea>
+                        <small>Example: 2025-12-15: Complete architecture design</small>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Create Project</button>
+                    <a href="{{ url_for('index') }}" class="btn btn-secondary">Cancel</a>
+                </div>
+            </form>
+        </section>
+    </main>
+
+    <footer>
+        <p>AI Team Communications Agent - Powered by AWS Strands SDK</p>
+    </footer>
+</body>
+</html>

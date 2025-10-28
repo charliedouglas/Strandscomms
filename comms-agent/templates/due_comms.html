@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Due Communications</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <header>
+        <h1>AI Team Communications Agent</h1>
+        <nav>
+            <a href="{{ url_for('index') }}">Dashboard</a>
+            <a href="{{ url_for('due_communications') }}">Due Communications</a>
+            <a href="{{ url_for('create_project') }}">+ New Project</a>
+        </nav>
+    </header>
+
+    <main>
+        <section class="due-comms">
+            <h2>Communications Due in Next 7 Days</h2>
+
+            {% if due_communications %}
+                <div class="due-comms-actions">
+                    <button onclick="generateSelectedDrafts()" class="btn btn-primary">Generate Drafts for Selected</button>
+                    <button onclick="selectAll()" class="btn btn-secondary">Select All</button>
+                </div>
+
+                <div class="due-comms-list">
+                    {% for item in due_communications %}
+                    <div class="due-comm-item">
+                        <div class="due-comm-header">
+                            <input type="checkbox" class="comm-checkbox"
+                                   data-project-id="{{ item.project_id }}"
+                                   data-comm='{{ item.planned_comm|tojson|safe }}'>
+                            <div>
+                                <h3>{{ item.project_name }}</h3>
+                                <span class="days-badge {% if item.days_until_due <= 2 %}urgent{% elif item.days_until_due <= 5 %}warning{% endif %}">
+                                    {% if item.days_until_due == 0 %}
+                                        Due Today
+                                    {% elif item.days_until_due == 1 %}
+                                        Due Tomorrow
+                                    {% else %}
+                                        Due in {{ item.days_until_due }} days
+                                    {% endif %}
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="due-comm-details">
+                            <div class="detail-row">
+                                <strong>Date:</strong> {{ item.planned_comm.target_date }}
+                            </div>
+                            <div class="detail-row">
+                                <strong>Type:</strong>
+                                <span class="type-badge">{{ item.planned_comm.type }}</span>
+                            </div>
+                            <div class="detail-row">
+                                <strong>Audiences:</strong>
+                                <div class="audience-tags">
+                                    {% for audience in item.planned_comm.audiences %}
+                                    <span class="audience-tag">{{ audience }}</span>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            <div class="detail-row">
+                                <strong>Reason:</strong>
+                                <p>{{ item.planned_comm.reason }}</p>
+                            </div>
+                            <div class="detail-row">
+                                <strong>Key Topics:</strong>
+                                <ul>
+                                    {% for topic in item.planned_comm.key_topics %}
+                                    <li>{{ topic }}</li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="due-comm-actions">
+                            <a href="{{ url_for('project_detail', project_id=item.project_id) }}" class="btn btn-secondary">View Project</a>
+                            <button onclick="generateSingleDraft('{{ item.project_id }}', {{ item.planned_comm|tojson|safe }})"
+                                    class="btn btn-primary">Generate Draft</button>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="empty-state">
+                    <p>No communications due in the next 7 days.</p>
+                    <a href="{{ url_for('index') }}" class="btn btn-primary">Back to Dashboard</a>
+                </div>
+            {% endif %}
+        </section>
+
+        <div id="draftsModal" class="modal" style="display: none;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Review Email Drafts</h2>
+                    <button onclick="closeModal()" class="close-btn">&times;</button>
+                </div>
+                <div id="draftsContainer" class="modal-body">
+                    <!-- Drafts will be inserted here -->
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>AI Team Communications Agent - Powered by AWS Strands SDK</p>
+    </footer>
+
+    <script>
+        function selectAll() {
+            const checkboxes = document.querySelectorAll('.comm-checkbox');
+            const allChecked = Array.from(checkboxes).every(cb => cb.checked);
+            checkboxes.forEach(cb => cb.checked = !allChecked);
+        }
+
+        function generateSelectedDrafts() {
+            const selected = Array.from(document.querySelectorAll('.comm-checkbox:checked'));
+
+            if (selected.length === 0) {
+                alert('Please select at least one communication');
+                return;
+            }
+
+            const communications = selected.map(cb => ({
+                project_id: cb.dataset.projectId,
+                planned_comm: JSON.parse(cb.dataset.comm)
+            }));
+
+            generateDrafts(communications);
+        }
+
+        function generateSingleDraft(projectId, plannedComm) {
+            generateDrafts([{
+                project_id: projectId,
+                planned_comm: plannedComm
+            }]);
+        }
+
+        function generateDrafts(communications) {
+            const btn = event.target;
+            const originalText = btn.textContent;
+            btn.disabled = true;
+            btn.textContent = 'Generating...';
+
+            fetch('{{ url_for("generate_drafts") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ communications })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showDraftsModal(data.drafts);
+                    btn.disabled = false;
+                    btn.textContent = originalText;
+                } else {
+                    alert('Error: ' + (data.error || 'Unknown error'));
+                    btn.disabled = false;
+                    btn.textContent = originalText;
+                }
+            })
+            .catch(error => {
+                alert('Error generating drafts: ' + error);
+                btn.disabled = false;
+                btn.textContent = originalText;
+            });
+        }
+
+        function showDraftsModal(drafts) {
+            const container = document.getElementById('draftsContainer');
+            container.innerHTML = '';
+
+            drafts.forEach((draft, index) => {
+                const draftHtml = `
+                    <div class="draft-item">
+                        <h3>Draft ${index + 1}: ${draft.audience}</h3>
+                        <div class="draft-field">
+                            <label>Subject:</label>
+                            <input type="text" id="subject-${index}" value="${draft.subject}" class="draft-input">
+                        </div>
+                        <div class="draft-field">
+                            <label>Body:</label>
+                            <textarea id="body-${index}" rows="15" class="draft-textarea">${draft.body}</textarea>
+                        </div>
+                        <div class="draft-field">
+                            <label>Key Points:</label>
+                            <ul>
+                                ${draft.key_points.map(point => `<li>${point}</li>`).join('')}
+                            </ul>
+                        </div>
+                        <div class="draft-actions">
+                            <button onclick="sendEmail(${index}, ${JSON.stringify(draft).replace(/"/g, '&quot;')})"
+                                    class="btn btn-primary">Approve & Send</button>
+                            <button onclick="removeDraft(${index})" class="btn btn-secondary">Reject</button>
+                        </div>
+                    </div>
+                `;
+                container.innerHTML += draftHtml;
+            });
+
+            document.getElementById('draftsModal').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('draftsModal').style.display = 'none';
+        }
+
+        function removeDraft(index) {
+            const draftItem = document.querySelectorAll('.draft-item')[index];
+            draftItem.remove();
+
+            if (document.querySelectorAll('.draft-item').length === 0) {
+                closeModal();
+            }
+        }
+
+        function sendEmail(index, draftData) {
+            const subject = document.getElementById(`subject-${index}`).value;
+            const body = document.getElementById(`body-${index}`).value;
+
+            const emailData = {
+                ...draftData,
+                subject: subject,
+                body: body
+            };
+
+            fetch('{{ url_for("send_email") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(emailData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Email marked as sent!');
+                    removeDraft(index);
+                    // Reload page to update due communications
+                    if (document.querySelectorAll('.draft-item').length === 0) {
+                        window.location.reload();
+                    }
+                } else {
+                    alert('Error: ' + (data.error || 'Unknown error'));
+                }
+            })
+            .catch(error => {
+                alert('Error sending email: ' + error);
+            });
+        }
+    </script>
+</body>
+</html>
