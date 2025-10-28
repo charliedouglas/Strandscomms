@@ -111,6 +111,8 @@
     </footer>
 
     <script>
+        let currentButton = null;
+
         function selectAll() {
             const checkboxes = document.querySelectorAll('.comm-checkbox');
             const allChecked = Array.from(checkboxes).every(cb => cb.checked);
@@ -130,21 +132,24 @@
                 planned_comm: JSON.parse(cb.dataset.comm)
             }));
 
-            generateDrafts(communications);
+            generateDrafts(communications, event.target);
         }
 
         function generateSingleDraft(projectId, plannedComm) {
             generateDrafts([{
                 project_id: projectId,
                 planned_comm: plannedComm
-            }]);
+            }], event.target);
         }
 
-        function generateDrafts(communications) {
-            const btn = event.target;
-            const originalText = btn.textContent;
-            btn.disabled = true;
-            btn.textContent = 'Generating...';
+        function generateDrafts(communications, button) {
+            currentButton = button;
+            const originalText = button.textContent;
+            button.disabled = true;
+            button.innerHTML = '<span style="display: inline-block; animation: spin 1s linear infinite;">⏳</span> Generating with AI...';
+
+            // Show loading notification
+            showNotification('Generating email drafts using AI. This may take 10-30 seconds...', 'info');
 
             fetch('{{ url_for("generate_drafts") }}', {
                 method: 'POST',
@@ -153,58 +158,133 @@
                 },
                 body: JSON.stringify({ communications })
             })
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
             .then(data => {
+                button.disabled = false;
+                button.textContent = originalText;
+
                 if (data.success) {
+                    showNotification(`Successfully generated ${data.drafts.length} email draft(s)!`, 'success');
                     showDraftsModal(data.drafts);
-                    btn.disabled = false;
-                    btn.textContent = originalText;
                 } else {
-                    alert('Error: ' + (data.error || 'Unknown error'));
-                    btn.disabled = false;
-                    btn.textContent = originalText;
+                    showNotification('Error: ' + (data.error || 'Unknown error'), 'error');
                 }
             })
             .catch(error => {
-                alert('Error generating drafts: ' + error);
-                btn.disabled = false;
-                btn.textContent = originalText;
+                console.error('Error generating drafts:', error);
+                showNotification('Error generating drafts: ' + error.message, 'error');
+                button.disabled = false;
+                button.textContent = originalText;
             });
+        }
+
+        function showNotification(message, type = 'info') {
+            // Remove existing notification
+            const existing = document.querySelector('.notification');
+            if (existing) {
+                existing.remove();
+            }
+
+            // Create notification element
+            const notification = document.createElement('div');
+            notification.className = `notification notification-${type}`;
+            notification.innerHTML = `
+                <span>${message}</span>
+                <button onclick="this.parentElement.remove()" style="background: none; border: none; color: inherit; cursor: pointer; font-size: 1.5rem; padding: 0 0.5rem; margin-left: 1rem;">&times;</button>
+            `;
+
+            document.body.appendChild(notification);
+
+            // Auto-remove after 5 seconds for info/success, 10 seconds for error
+            const timeout = type === 'error' ? 10000 : 5000;
+            setTimeout(() => {
+                if (notification.parentElement) {
+                    notification.remove();
+                }
+            }, timeout);
         }
 
         function showDraftsModal(drafts) {
             const container = document.getElementById('draftsContainer');
             container.innerHTML = '';
 
+            if (drafts.length === 0) {
+                container.innerHTML = '<p class="empty-state">No drafts were generated.</p>';
+                document.getElementById('draftsModal').style.display = 'flex';
+                return;
+            }
+
             drafts.forEach((draft, index) => {
+                // Escape HTML in draft content
+                const escapeHtml = (text) => {
+                    const div = document.createElement('div');
+                    div.textContent = text;
+                    return div.innerHTML;
+                };
+
+                const audienceBadgeColors = {
+                    'users': 'background: #e8f4f8; color: #2980b9;',
+                    'developers': 'background: #fef5e7; color: #d68910;',
+                    'management': 'background: #f4ecf7; color: #8e44ad;'
+                };
+
                 const draftHtml = `
-                    <div class="draft-item">
-                        <h3>Draft ${index + 1}: ${draft.audience}</h3>
+                    <div class="draft-item" id="draft-${index}">
+                        <h3>
+                            <span style="display: inline-block; padding: 0.25rem 0.8rem; border-radius: 12px; font-size: 0.85rem; ${audienceBadgeColors[draft.audience] || 'background: #ecf0f1; color: #2c3e50;'}">
+                                ${draft.audience.charAt(0).toUpperCase() + draft.audience.slice(1)}
+                            </span>
+                            Email Draft
+                        </h3>
+                        <div class="draft-field">
+                            <label>To: ${draft.audience}@company.com</label>
+                        </div>
                         <div class="draft-field">
                             <label>Subject:</label>
-                            <input type="text" id="subject-${index}" value="${draft.subject}" class="draft-input">
+                            <input type="text" id="subject-${index}" value="${escapeHtml(draft.subject)}" class="draft-input">
                         </div>
                         <div class="draft-field">
                             <label>Body:</label>
-                            <textarea id="body-${index}" rows="15" class="draft-textarea">${draft.body}</textarea>
+                            <textarea id="body-${index}" rows="15" class="draft-textarea">${escapeHtml(draft.body)}</textarea>
                         </div>
                         <div class="draft-field">
-                            <label>Key Points:</label>
+                            <label>Key Points Covered:</label>
                             <ul>
-                                ${draft.key_points.map(point => `<li>${point}</li>`).join('')}
+                                ${draft.key_points.map(point => `<li>${escapeHtml(point)}</li>`).join('')}
                             </ul>
                         </div>
                         <div class="draft-actions">
-                            <button onclick="sendEmail(${index}, ${JSON.stringify(draft).replace(/"/g, '&quot;')})"
-                                    class="btn btn-primary">Approve & Send</button>
-                            <button onclick="removeDraft(${index})" class="btn btn-secondary">Reject</button>
+                            <button onclick="sendEmail(${index}, ${index})" class="btn btn-primary">✓ Approve & Send</button>
+                            <button onclick="copyToClipboard(${index})" class="btn btn-secondary">📋 Copy to Clipboard</button>
+                            <button onclick="removeDraft(${index})" class="btn btn-secondary">✗ Reject</button>
                         </div>
                     </div>
                 `;
                 container.innerHTML += draftHtml;
             });
 
+            // Store drafts data globally for later access
+            window.currentDrafts = drafts;
+
             document.getElementById('draftsModal').style.display = 'flex';
+        }
+
+        function copyToClipboard(index) {
+            const subject = document.getElementById(`subject-${index}`).value;
+            const body = document.getElementById(`body-${index}`).value;
+            const text = `Subject: ${subject}\n\n${body}`;
+
+            navigator.clipboard.writeText(text).then(() => {
+                showNotification('Draft copied to clipboard!', 'success');
+            }).catch(err => {
+                showNotification('Failed to copy to clipboard', 'error');
+                console.error('Copy failed:', err);
+            });
         }
 
         function closeModal() {
@@ -220,15 +300,25 @@
             }
         }
 
-        function sendEmail(index, draftData) {
+        function sendEmail(index, draftIndex) {
             const subject = document.getElementById(`subject-${index}`).value;
             const body = document.getElementById(`body-${index}`).value;
+            const draftData = window.currentDrafts[draftIndex];
 
             const emailData = {
-                ...draftData,
+                project_id: draftData.project_id,
+                audience: draftData.audience,
+                type: draftData.type,
                 subject: subject,
-                body: body
+                body: body,
+                key_points: draftData.key_points,
+                planned_comm_id: draftData.planned_comm_id
             };
+
+            const btn = event.target;
+            const originalText = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '⏳ Sending...';
 
             fetch('{{ url_for("send_email") }}', {
                 method: 'POST',
@@ -239,19 +329,27 @@
             })
             .then(response => response.json())
             .then(data => {
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+
                 if (data.success) {
-                    alert('Email marked as sent!');
+                    showNotification('Email marked as sent and history updated!', 'success');
                     removeDraft(index);
-                    // Reload page to update due communications
-                    if (document.querySelectorAll('.draft-item').length === 0) {
-                        window.location.reload();
-                    }
+                    // Reload page to update due communications if modal is empty
+                    setTimeout(() => {
+                        if (document.querySelectorAll('.draft-item').length === 0) {
+                            window.location.reload();
+                        }
+                    }, 1000);
                 } else {
-                    alert('Error: ' + (data.error || 'Unknown error'));
+                    showNotification('Error: ' + (data.error || 'Unknown error'), 'error');
                 }
             })
             .catch(error => {
-                alert('Error sending email: ' + error);
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+                showNotification('Error sending email: ' + error.message, 'error');
+                console.error('Send error:', error);
             });
         }
     </script>

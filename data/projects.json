@@ -1,0 +1,391 @@
+{
+  "projects": [
+    {
+      "id": "proj_001",
+      "name": "Customer Portal Redesign3",
+      "owner": "Sarah Chen",
+      "status": "active",
+      "description": "Complete overhaul of customer-facing portal with improved UX, mobile responsiveness, and self-service capabilities",
+      "business_value": "Reduce support tickets by 40%, improve customer satisfaction scores, enable 24/7 self-service access",
+      "start_date": "2025-08-15",
+      "current_phase": "Development - Phase 2 (Dashboard & Analytics)",
+      "expected_launch": "2025-12-01",
+      "stakeholders": {
+        "users": [
+          "customers@company.com",
+          "beta-testers@company.com"
+        ],
+        "developers": [
+          "dev-team@company.com",
+          "frontend@company.com",
+          "backend@company.com"
+        ],
+        "management": [
+          "cto@company.com",
+          "product-vp@company.com",
+          "ceo@company.com"
+        ]
+      },
+      "recent_updates": [
+        "Completed user authentication module with SSO integration",
+        "Dashboard wireframes approved by design team",
+        "Performance testing shows 60% improvement in load times",
+        "Mobile app beta launched with 50 internal testers"
+      ],
+      "upcoming_milestones": [
+        {
+          "date": "2025-11-05",
+          "description": "Complete analytics dashboard development"
+        },
+        {
+          "date": "2025-11-15",
+          "description": "Begin user acceptance testing (UAT)"
+        },
+        {
+          "date": "2025-11-25",
+          "description": "Security audit and penetration testing"
+        },
+        {
+          "date": "2025-12-01",
+          "description": "Production launch"
+        }
+      ],
+      "comms_history": [
+        {
+          "id": "comm_001",
+          "date_sent": "2025-09-15",
+          "type": "status_update",
+          "audience": "developers",
+          "subject": "Customer Portal - Sprint 3 Completion & Technical Updates",
+          "summary": "Shared progress on authentication module, API endpoints, and upcoming integration work",
+          "key_messages": [
+            "OAuth 2.0 and SSO integration completed",
+            "New API endpoints available in staging environment",
+            "Code review process updates to improve quality"
+          ],
+          "sent_to": [
+            "dev-team@company.com",
+            "frontend@company.com",
+            "backend@company.com"
+          ]
+        },
+        {
+          "id": "comm_002",
+          "date_sent": "2025-10-01",
+          "type": "management_update",
+          "audience": "management",
+          "subject": "Customer Portal Project: Q3 Progress Report",
+          "summary": "Executive summary of project progress, budget, timeline, and risks",
+          "key_messages": [
+            "Project on track for December launch",
+            "15% under budget due to efficient resource allocation",
+            "Performance metrics exceeding initial targets",
+            "Risk: Potential UAT timeline compression if delays occur"
+          ],
+          "sent_to": [
+            "cto@company.com",
+            "product-vp@company.com",
+            "ceo@company.com"
+          ]
+        },
+        {
+          "id": "comm_003",
+          "date_sent": "2025-10-10",
+          "type": "status_update",
+          "audience": "users",
+          "subject": "Exciting Updates: Your New Customer Portal is Taking Shape!",
+          "summary": "Customer-friendly update on portal improvements and beta testing opportunity",
+          "key_messages": [
+            "New portal will be faster and easier to use",
+            "Mobile app now available for beta testing",
+            "You'll be able to manage everything in one place"
+          ],
+          "sent_to": [
+            "customers@company.com",
+            "beta-testers@company.com"
+          ]
+        },
+        {
+          "id": "comm_4d132b62",
+          "date_sent": "2025-10-28",
+          "type": "status_update",
+          "audience": "management",
+          "subject": "Customer Portal Redesign3 - Development Phase 2 Status Update",
+          "summary": "Following up on our Q3 Progress Report from October 1st, I'm pleased to provide an update on the Customer Portal Redesign3 project as we advance through Development Phase 2.\n\n**Key Achievements:**\n- S...",
+          "key_messages": [
+            "Project remains on schedule for December 1st launch",
+            "60% performance improvement achieved with authentication module complete",
+            "Strategic value includes 3x capacity without infrastructure investment",
+            "Resources allocated within budget with $15K security audit confirmed",
+            "Risk mitigation plans in place for UAT and security audit dependencies",
+            "Success metrics trending above 25% engagement improvement target"
+          ],
+          "sent_to": [
+            "cto@company.com",
+            "product-vp@company.com",
+            "ceo@company.com"
+          ]
+        }
+      ],
+      "comms_plan": {
+        "generated_date": "2025-10-28",
+        "planning_horizon": "3 months",
+        "planned_communications": [
+          {
+            "target_date": "2025-11-01",
+            "type": "status_update",
+            "audiences": [
+              "management"
+            ],
+            "reason": "Project kickoff and initial status update to align management on project scope, timeline, and resource allocation",
+            "key_topics": [
+              "Project objectives and scope",
+              "Timeline and key milestones",
+              "Resource requirements",
+              "Initial risk assessment",
+              "Success metrics"
+            ],
+            "status": "sent"
+          },
+          {
+            "target_date": "2025-11-08",
+            "type": "status_update",
+            "audiences": [
+              "developers"
+            ],
+            "reason": "Technical kickoff to align development team on architecture, technical requirements, and development approach",
+            "key_topics": [
+              "Technical architecture overview",
+              "Development standards and practices",
+              "Integration requirements",
+              "Development environment setup",
+              "Code review processes"
+            ],
+            "status": "pending"
+          },
+          {
+            "target_date": "2025-11-15",
+            "type": "status_update",
+            "audiences": [
+              "users"
+            ],
+            "reason": "Initial user communication to introduce upcoming changes and gather early feedback on user needs",
+            "key_topics": [
+              "Upcoming improvements overview",
+              "Expected benefits for users",
+              "Timeline for changes",
+              "How to provide feedback",
+              "Support during transition"
+            ],
+            "status": "pending"
+          },
+          {
+            "target_date": "2025-11-22",
+            "type": "status_update",
+            "audiences": [
+              "management",
+              "developers"
+            ],
+            "reason": "Mid-sprint review and progress update after initial development phase",
+            "key_topics": [
+              "Development progress against timeline",
+              "Technical challenges encountered",
+              "Resource utilization",
+              "Risk mitigation updates",
+              "Upcoming milestone preparation"
+            ],
+            "status": "pending"
+          },
+          {
+            "target_date": "2025-12-01",
+            "type": "management_update",
+            "audiences": [
+              "management"
+            ],
+            "reason": "Monthly management update focusing on progress, budget, and strategic alignment",
+            "key_topics": [
+              "Progress metrics and KPIs",
+              "Budget utilization",
+              "Timeline adherence",
+              "Strategic value delivery",
+              "Stakeholder feedback summary"
+            ],
+            "status": "pending"
+          },
+          {
+            "target_date": "2025-12-06",
+            "type": "new_features",
+            "audiences": [
+              "developers",
+              "users"
+            ],
+            "reason": "Feature preview and technical readiness update as project reaches mid-point milestone",
+            "key_topics": [
+              "Feature demonstrations",
+              "Technical implementation details",
+              "User acceptance testing plans",
+              "Performance improvements",
+              "Integration capabilities"
+            ],
+            "status": "pending"
+          },
+          {
+            "target_date": "2025-12-13",
+            "type": "status_update",
+            "audiences": [
+              "users"
+            ],
+            "reason": "User-focused update on feature availability and preparation for upcoming changes",
+            "key_topics": [
+              "Feature preview for users",
+              "Training and preparation materials",
+              "Timeline for rollout",
+              "Support resources available",
+              "FAQ and troubleshooting"
+            ],
+            "status": "pending"
+          },
+          {
+            "target_date": "2025-12-20",
+            "type": "status_update",
+            "audiences": [
+              "management",
+              "developers"
+            ],
+            "reason": "Pre-holiday status update and planning for year-end delivery",
+            "key_topics": [
+              "Year-end delivery status",
+              "Holiday period planning",
+              "Q1 preparation",
+              "Resource allocation review",
+              "Risk assessment update"
+            ],
+            "status": "pending"
+          },
+          {
+            "target_date": "2026-01-03",
+            "type": "management_update",
+            "audiences": [
+              "management"
+            ],
+            "reason": "New year strategic update and Q1 planning alignment",
+            "key_topics": [
+              "Q4 achievements summary",
+              "Q1 objectives and priorities",
+              "Resource planning for new quarter",
+              "Strategic alignment review",
+              "Success metrics evaluation"
+            ],
+            "status": "pending"
+          },
+          {
+            "target_date": "2026-01-10",
+            "type": "status_update",
+            "audiences": [
+              "developers"
+            ],
+            "reason": "Post-holiday technical sync and preparation for final development push",
+            "key_topics": [
+              "Technical debt review",
+              "Final development sprint planning",
+              "Quality assurance preparation",
+              "Deployment readiness",
+              "Performance optimization"
+            ],
+            "status": "pending"
+          },
+          {
+            "target_date": "2026-01-17",
+            "type": "launch_announcement",
+            "audiences": [
+              "users",
+              "management"
+            ],
+            "reason": "Pre-launch announcement to prepare stakeholders for upcoming release and manage expectations",
+            "key_topics": [
+              "Launch timeline confirmation",
+              "Final feature set overview",
+              "User benefits and improvements",
+              "Change management support",
+              "Success measurement approach"
+            ],
+            "status": "pending"
+          },
+          {
+            "target_date": "2026-01-24",
+            "type": "status_update",
+            "audiences": [
+              "developers",
+              "management"
+            ],
+            "reason": "Final pre-launch technical and strategic alignment",
+            "key_topics": [
+              "Launch readiness assessment",
+              "Final testing results",
+              "Rollback procedures",
+              "Support team preparation",
+              "Post-launch monitoring plan"
+            ],
+            "status": "pending"
+          }
+        ]
+      }
+    },
+    {
+      "id": "proj_002",
+      "name": "AI-Powered Document Search",
+      "owner": "Marcus Johnson",
+      "status": "planning",
+      "description": "Implement semantic search capabilities across internal knowledge base using LLM embeddings and vector database",
+      "business_value": "Reduce time spent searching for information by 70%, improve knowledge sharing, enable natural language queries",
+      "start_date": "2025-10-20",
+      "current_phase": "Architecture & Design",
+      "expected_launch": "2026-02-15",
+      "stakeholders": {
+        "users": [
+          "all-staff@company.com",
+          "knowledge-workers@company.com"
+        ],
+        "developers": [
+          "ai-team@company.com",
+          "platform-eng@company.com",
+          "data-eng@company.com"
+        ],
+        "management": [
+          "cto@company.com",
+          "innovation-lead@company.com"
+        ]
+      },
+      "recent_updates": [
+        "Completed initial vendor evaluation for vector database solutions",
+        "Prototype semantic search demo well-received by stakeholders",
+        "Secured budget approval and team allocation",
+        "Beginning architecture design phase next week"
+      ],
+      "upcoming_milestones": [
+        {
+          "date": "2025-11-10",
+          "description": "Complete technical architecture design"
+        },
+        {
+          "date": "2025-11-25",
+          "description": "Finalize technology stack and vendor selection"
+        },
+        {
+          "date": "2025-12-15",
+          "description": "Development kickoff and sprint planning"
+        },
+        {
+          "date": "2026-01-30",
+          "description": "Alpha release for internal testing"
+        }
+      ],
+      "comms_history": [],
+      "comms_plan": {
+        "generated_date": null,
+        "planning_horizon": null,
+        "planned_communications": []
+      }
+    }
+  ]
+}

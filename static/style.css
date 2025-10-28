@@ -713,6 +713,135 @@ footer p {
     margin: 0;
 }
 
+/* Notifications */
+.notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 1rem 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 2000;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-width: 300px;
+    max-width: 500px;
+    animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(400px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.notification-info {
+    background-color: #3498db;
+    color: white;
+}
+
+.notification-success {
+    background-color: #27ae60;
+    color: white;
+}
+
+.notification-error {
+    background-color: #e74c3c;
+    color: white;
+}
+
+.notification-warning {
+    background-color: #f39c12;
+    color: white;
+}
+
+/* Loading Spinner */
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1999;
+}
+
+.loading-spinner {
+    background: white;
+    padding: 2rem;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.spinner {
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #3498db;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 1rem;
+}
+
+/* Draft Modal Enhancements */
+.draft-item {
+    border: 1px solid #ecf0f1;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    background: #f8f9fa;
+}
+
+.draft-item:last-child {
+    margin-bottom: 0;
+}
+
+.draft-item h3 {
+    color: #2c3e50;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid #3498db;
+}
+
+.draft-field ul {
+    list-style: none;
+    padding: 0;
+    margin-top: 0.5rem;
+}
+
+.draft-field ul li {
+    padding: 0.5rem;
+    margin: 0.25rem 0;
+    background: white;
+    border-left: 3px solid #3498db;
+    border-radius: 4px;
+}
+
+.draft-field ul li:before {
+    content: "✓ ";
+    color: #27ae60;
+    font-weight: bold;
+    margin-right: 0.5rem;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
     main {
@@ -737,5 +866,11 @@ footer p {
 
     .modal-content {
         width: 95%;
+    }
+
+    .notification {
+        right: 10px;
+        left: 10px;
+        min-width: auto;
     }
 }
